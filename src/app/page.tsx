@@ -30,7 +30,7 @@ export default function CatalogPage() {
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/products", {
+      const res = await fetch(`/api/products?t=${Date.now()}`, {
         cache: "no-store",
       });
       if (res.ok) {
