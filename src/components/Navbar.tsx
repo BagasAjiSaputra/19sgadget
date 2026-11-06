@@ -10,7 +10,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onOpenSupabaseHelper, storageReady = true }: NavbarProps) {
-  const adminWhatsAppUrl = "https://wa.me/6281234567890?text=Halo%2019s%20Gadget!%20Saya%20ingin%20tanya%20katalog%20gadget.";
+  const adminWhatsAppUrl = "https://wa.me/6285176954992?text=Halo%2019s%20Gadget!%20Saya%20ingin%20tanya%20katalog%20gadget.";
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-slate-200">

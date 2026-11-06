@@ -131,7 +131,7 @@ export default function CatalogPage() {
           {/* Quick Actions (WA Button only, admin button hidden from public) */}
           <div className="flex items-center gap-2">
             <a
-              href="https://wa.me/6281234567890?text=Halo%2019s%20Gadget,%20saya%20ingin%20tanya%20produk."
+              href="https://wa.me/6285176954992?text=Halo%2019s%20Gadget,%20saya%20ingin%20tanya%20produk."
               target="_blank"
               rel="noopener noreferrer"
               className="no-underline"

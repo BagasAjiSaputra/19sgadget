@@ -81,7 +81,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
       `Garansi: ${product.warranty}\n\n` +
       `Apakah unit ini masih ready stock? Terima kasih.`
     );
-    return `https://wa.me/6281234567890?text=${message}`;
+    return `https://wa.me/6285176954992?text=${message}`;
   };
 
   return (

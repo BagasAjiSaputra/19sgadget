@@ -374,12 +374,6 @@ export default function AdminPage() {
               {authLoading ? "Memverifikasi..." : "Masuk Dashboard"}
             </DuoButton>
           </form>
-
-          <div className="mt-6 pt-4 border-t border-zinc-800/80 text-center">
-            <span className="text-[11px] font-medium text-zinc-500">
-              Password default: <code className="text-emerald-400 font-mono">admin19s</code>
-            </span>
-          </div>
         </div>
       </div>
     );
