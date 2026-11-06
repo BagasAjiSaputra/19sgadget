@@ -20,7 +20,9 @@ function getSupabase() {
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
     "";
-  return createClient(url, serviceKey);
+  return createClient(url, serviceKey, {
+    auth: { persistSession: false },
+  });
 }
 
 // GET all products (Accessible for catalog & admin)
@@ -35,7 +37,16 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ products: data });
+  return NextResponse.json(
+    { products: data || [] },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    }
+  );
 }
 
 // POST create new product (Protected)

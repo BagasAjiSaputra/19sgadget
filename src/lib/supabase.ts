@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { GadgetProduct } from "../types/gadget";
-import { INITIAL_PRODUCTS } from "../data/initialProducts";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://kycdtpppomsvfydovwrl.supabase.co";
 const supabaseAnonKey =
@@ -9,7 +8,9 @@ const supabaseAnonKey =
   "";
 
 // Client for browser / public actions
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { persistSession: false },
+});
 
 export interface FetchProductsResult {
   products: GadgetProduct[];
@@ -19,8 +20,8 @@ export interface FetchProductsResult {
 
 /**
  * Fetch products from Supabase table `19sgadget_products`.
- * If the table has not yet been migrated in Supabase SQL editor,
- * gracefully fallback to initial mock data.
+ * Returns real records from database. Empty array if empty.
+ * Never revives mock products when items are deleted.
  */
 export async function getGadgetProducts(): Promise<FetchProductsResult> {
   try {
@@ -29,22 +30,23 @@ export async function getGadgetProducts(): Promise<FetchProductsResult> {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      console.warn("Supabase client fetch warning:", error.message);
       return {
-        products: INITIAL_PRODUCTS,
-        isUsingFallback: true,
-        error: error ? error.message : null,
+        products: [],
+        isUsingFallback: false,
+        error: error.message,
       };
     }
 
     return {
-      products: data as GadgetProduct[],
+      products: (data || []) as GadgetProduct[],
       isUsingFallback: false,
     };
   } catch (err) {
     return {
-      products: INITIAL_PRODUCTS,
-      isUsingFallback: true,
+      products: [],
+      isUsingFallback: false,
       error: err instanceof Error ? err.message : "Unknown error",
     };
   }
@@ -61,4 +63,3 @@ export function getGadgetImageUrl(pathOrUrl: string): string {
   const { data } = supabase.storage.from("19sgadget_products").getPublicUrl(cleanPath);
   return data.publicUrl;
 }
-

@@ -69,14 +69,15 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
 
   const getWhatsAppOrderLink = () => {
     const totalPrice = product.price * quantity;
+    const priceText = product.price > 0 ? formatRupiah(totalPrice) : "Tanya via WA / Nego";
     const message = encodeURIComponent(
-      `Halo 19s Gadget, saya ingin memesan unit berikut:\n\n` +
+      `Halo 19s Gadget, saya ingin tanya/pesan unit berikut:\n\n` +
       `Nama Produk: ${product.name}\n` +
       `Brand: ${product.brand}\n` +
       `Kategori: ${product.category_id.toUpperCase()}\n` +
       `Varian Warna: ${selectedColor}\n` +
       `Jumlah: ${quantity} Unit\n` +
-      `Total: ${formatRupiah(totalPrice)}\n` +
+      `Harga: ${priceText}\n` +
       `Garansi: ${product.warranty}\n\n` +
       `Apakah unit ini masih ready stock? Terima kasih.`
     );
@@ -193,7 +194,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                       </div>
                     )}
                     <div className="text-2xl sm:text-3xl font-black text-emerald-400">
-                      {formatRupiah(product.price)}
+                      {product.price > 0 ? formatRupiah(product.price) : "Hubungi Kami (Nego)"}
                     </div>
                   </div>
                   <div className="text-right">
@@ -365,9 +366,11 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
         {/* Footer Bar */}
         <div className="px-6 py-4 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <div className="text-xs font-bold text-zinc-500">Total Harga ({quantity} Unit):</div>
+            <div className="text-xs font-bold text-zinc-500">
+              {product.price > 0 ? `Total Harga (${quantity} Unit):` : "Harga Unit:"}
+            </div>
             <div className="text-2xl font-black text-zinc-100">
-              {formatRupiah(product.price * quantity)}
+              {product.price > 0 ? formatRupiah(product.price * quantity) : "Tanya via WA / Nego"}
             </div>
           </div>
 

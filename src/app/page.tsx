@@ -4,8 +4,6 @@ import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { GadgetProduct, GadgetCategory } from "@/types/gadget";
-import { getGadgetProducts } from "@/lib/supabase";
-import { INITIAL_PRODUCTS } from "@/data/initialProducts";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import {
@@ -15,7 +13,6 @@ import {
   LayoutGrid,
   Search,
   X,
-  Settings,
   MessageCircle,
   PackageX,
   CheckCircle,
@@ -23,21 +20,35 @@ import {
 import { DuoButton } from "@/components/ui/DuoButton";
 
 export default function CatalogPage() {
-  const [products, setProducts] = useState<GadgetProduct[]>(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<GadgetProduct[]>([]);
   const [activeCategory, setActiveCategory] = useState<GadgetCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<GadgetProduct | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch products from Supabase
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const res = await getGadgetProducts();
-      setProducts(res.products);
+  // Fetch real products from Supabase API (no cache)
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/products", {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data.products || []);
+      } else {
+        setProducts([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+      setProducts([]);
+    } finally {
       setLoading(false);
-    };
-    load();
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
   }, []);
 
   // Category counts
@@ -117,13 +128,13 @@ export default function CatalogPage() {
             </Link>
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions (WA Button only, admin button hidden from public) */}
           <div className="flex items-center gap-2">
             <a
               href="https://wa.me/6281234567890?text=Halo%2019s%20Gadget,%20saya%20ingin%20tanya%20produk."
               target="_blank"
               rel="noopener noreferrer"
-              className="no-underline hidden sm:block"
+              className="no-underline"
             >
               <DuoButton
                 variant="green"
@@ -133,16 +144,6 @@ export default function CatalogPage() {
                 Chat WA
               </DuoButton>
             </a>
-
-            <Link href="/admin" className="no-underline">
-              <button
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-bold transition-all cursor-pointer"
-                title="Halaman Admin"
-              >
-                <Settings className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Admin</span>
-              </button>
-            </Link>
           </div>
         </div>
       </header>
@@ -214,37 +215,61 @@ export default function CatalogPage() {
           </div>
         </div>
 
+        {/* Loading Skeleton */}
+        {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 animate-pulse"
+              >
+                <div className="aspect-square w-full rounded-xl bg-zinc-800/60 mb-3" />
+                <div className="h-3 w-24 bg-zinc-800 rounded mb-2" />
+                <div className="h-4 w-3/4 bg-zinc-800 rounded mb-2" />
+                <div className="h-3 w-full bg-zinc-850 rounded mb-4" />
+                <div className="h-6 w-full bg-zinc-800/80 rounded" />
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Box-Box Item Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onOpenDetail={setSelectedProduct}
-            />
-          ))}
-        </div>
+        {!loading && filteredProducts.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onOpenDetail={setSelectedProduct}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredProducts.length === 0 && !loading && (
+        {!loading && filteredProducts.length === 0 && (
           <div className="bg-zinc-900 rounded-3xl border border-zinc-800 p-12 text-center max-w-md mx-auto my-12">
             <PackageX className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
             <h3 className="text-base font-black text-zinc-200 mb-1">
-              Gadget tidak ditemukan
+              {products.length === 0 ? "Belum Ada Gadget di Katalog" : "Gadget tidak ditemukan"}
             </h3>
             <p className="text-xs text-zinc-500 font-medium mb-5">
-              Tidak ada gadget untuk kata kunci &quot;{searchQuery}&quot;.
+              {products.length === 0
+                ? "Daftar produk masih kosong."
+                : `Tidak ada gadget untuk kata kunci "${searchQuery}".`}
             </p>
-            <DuoButton
-              variant="white"
-              size="sm"
-              onClick={() => {
-                setSearchQuery("");
-                setActiveCategory("all");
-              }}
-            >
-              Reset Filter
-            </DuoButton>
+            {searchQuery && (
+              <DuoButton
+                variant="white"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveCategory("all");
+                }}
+              >
+                Reset Filter
+              </DuoButton>
+            )}
           </div>
         )}
       </main>
