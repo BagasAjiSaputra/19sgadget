@@ -17,6 +17,15 @@ export function ProductCard({ product, onOpenDetail }: ProductCardProps) {
     product.description ||
     `${product.brand} ${product.category_id} berkualitas dengan spesifikasi terbaik.`;
 
+  const formatRupiah = (val?: number) => {
+    if (!val || val <= 0) return "Hubungi Kami";
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
   return (
     <div
       onClick={() => onOpenDetail && onOpenDetail(product)}
@@ -50,6 +59,11 @@ export function ProductCard({ product, onOpenDetail }: ProductCardProps) {
         <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mb-3">
           {description}
         </p>
+
+        {/* Harga */}
+        <div className="text-base font-black text-emerald-400 mb-3">
+          {formatRupiah(product.price)}
+        </div>
       </div>
 
       {/* RAM & Storage */}

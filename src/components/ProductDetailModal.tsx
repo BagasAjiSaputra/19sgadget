@@ -39,9 +39,19 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const storage = product.specs?.storage;
   const description = product.specs?.description || product.description;
 
+  const formatRupiah = (val?: number) => {
+    if (!val || val <= 0) return "Hubungi Kami";
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
   const getWhatsAppLink = () => {
+    const priceText = product.price > 0 ? ` (Harga: ${formatRupiah(product.price)})` : "";
     const message = encodeURIComponent(
-      `Halo 19s Gadget, saya tertarik dengan unit ${product.name}. Apakah masih ready?`
+      `Halo 19s Gadget, saya tertarik dengan unit ${product.name}${priceText}. Apakah masih ready?`
     );
     return `https://wa.me/6285176954992?text=${message}`;
   };
@@ -91,14 +101,20 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           />
         </div>
 
-        {/* Informasi Ringkas Unit */}
+        {/* Informasi Ringkas Unit & Harga */}
         <div className="p-4 sm:p-5 border-t border-zinc-800 bg-zinc-900">
-          <h2
-            id="modal-gadget-title"
-            className="text-base sm:text-lg font-bold text-zinc-100 mb-1"
-          >
-            {product.name}
-          </h2>
+          <div className="flex items-start justify-between gap-3 mb-1.5">
+            <h2
+              id="modal-gadget-title"
+              className="text-base sm:text-lg font-bold text-zinc-100 leading-snug"
+            >
+              {product.name}
+            </h2>
+
+            <div className="text-base sm:text-lg font-black text-emerald-400 shrink-0">
+              {formatRupiah(product.price)}
+            </div>
+          </div>
 
           {description && (
             <p className="text-xs text-zinc-400 line-clamp-2 mb-3">

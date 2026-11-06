@@ -28,6 +28,15 @@ import {
 import { DuoButton } from "@/components/ui/DuoButton";
 import { GadgetProduct } from "@/types/gadget";
 
+const formatRupiah = (val?: number) => {
+  if (!val || val <= 0) return "Hubungi Kami";
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(val);
+};
+
 export default function AdminPage() {
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -41,10 +50,11 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"list" | "create">("list");
 
-  // Create Form State (Kategori, Nama, Brand, Gambar, Deskripsi, RAM, Storage)
+  // Create Form State (Kategori, Nama, Brand, Harga, Gambar, Deskripsi, RAM, Storage)
   const [categoryId, setCategoryId] = useState<"handphone" | "tablet" | "laptop">("handphone");
   const [brand, setBrand] = useState("");
   const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
   const [ram, setRam] = useState("");
@@ -56,6 +66,7 @@ export default function AdminPage() {
   const [editCategoryId, setEditCategoryId] = useState<"handphone" | "tablet" | "laptop">("handphone");
   const [editBrand, setEditBrand] = useState("");
   const [editName, setEditName] = useState("");
+  const [editPrice, setEditPrice] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editRam, setEditRam] = useState("");
@@ -179,6 +190,8 @@ export default function AdminPage() {
     if (ram) specs.ram = ram;
     if (storage) specs.storage = storage;
 
+    const parsedPrice = price ? Number(price.replace(/[^0-9]/g, "")) : 0;
+
     try {
       const res = await fetch("/api/admin/products", {
         method: "POST",
@@ -187,9 +200,9 @@ export default function AdminPage() {
           category_id: categoryId,
           brand,
           name,
+          price: parsedPrice,
           image_url: imageUrl,
           specs,
-          price: 0,
         }),
       });
 
@@ -198,6 +211,7 @@ export default function AdminPage() {
         setStatusMessage({ type: "success", text: `Gadget "${name}" berhasil ditambahkan.` });
         setName("");
         setBrand("");
+        setPrice("");
         setImageUrl("");
         setDescription("");
         setRam("");
@@ -222,6 +236,7 @@ export default function AdminPage() {
     setEditCategoryId(prod.category_id);
     setEditBrand(prod.brand);
     setEditName(prod.name);
+    setEditPrice(prod.price ? String(prod.price) : "");
     setEditImageUrl(prod.image_url);
     setEditDescription(prod.specs?.description || prod.description || "");
     setEditRam(prod.specs?.ram || "");
@@ -240,6 +255,8 @@ export default function AdminPage() {
     specs.ram = editRam;
     specs.storage = editStorage;
 
+    const parsedPrice = editPrice ? Number(editPrice.replace(/[^0-9]/g, "")) : 0;
+
     try {
       const res = await fetch("/api/admin/products", {
         method: "PUT",
@@ -249,6 +266,7 @@ export default function AdminPage() {
           category_id: editCategoryId,
           brand: editBrand,
           name: editName,
+          price: parsedPrice,
           image_url: editImageUrl,
           specs,
         }),
@@ -540,9 +558,14 @@ export default function AdminPage() {
                           <span className="text-zinc-400">{item.brand}</span>
                         </div>
 
-                        <h4 className="text-sm font-bold text-zinc-100 truncate">
-                          {item.name}
-                        </h4>
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-sm font-bold text-zinc-100 truncate">
+                            {item.name}
+                          </h4>
+                          <span className="text-xs font-black text-emerald-400 shrink-0">
+                            {formatRupiah(item.price)}
+                          </span>
+                        </div>
 
                         <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5">
                           {item.specs?.description || item.description || "Tidak ada deskripsi"}
@@ -639,19 +662,34 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* 3. Nama Produk */}
-              <div>
-                <label className="block text-xs font-bold uppercase text-zinc-400 mb-1.5">
-                  3. Nama Gadget *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Contoh: iPhone 16 Pro 256GB"
-                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-emerald-500 text-zinc-100 text-xs font-bold outline-none"
-                />
+              {/* 3. Nama Produk & Harga */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-zinc-400 mb-1.5">
+                    3. Nama Gadget *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Contoh: iPhone 16 Pro 256GB"
+                    className="w-full px-3.5 py-2 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-emerald-500 text-zinc-100 text-xs font-bold outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-zinc-400 mb-1.5">
+                    Harga (Rp)
+                  </label>
+                  <input
+                    type="text"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Contoh: 15999000 (angka)"
+                    className="w-full px-3.5 py-2 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-emerald-500 text-zinc-100 text-xs font-bold outline-none"
+                  />
+                </div>
               </div>
 
               {/* 4. Gambar (Supabase Storage) */}
@@ -832,18 +870,33 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* 3. Nama */}
-                <div>
-                  <label className="block text-xs font-bold uppercase text-zinc-400 mb-1">
-                    3. Nama Gadget
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 focus:border-sky-500 text-xs font-bold text-zinc-100 outline-none"
-                  />
+                {/* 3. Nama & Harga */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-zinc-400 mb-1">
+                      3. Nama Gadget
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 focus:border-sky-500 text-xs font-bold text-zinc-100 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-zinc-400 mb-1">
+                      Harga (Rp)
+                    </label>
+                    <input
+                      type="text"
+                      value={editPrice}
+                      onChange={(e) => setEditPrice(e.target.value)}
+                      placeholder="Contoh: 15999000"
+                      className="w-full px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 focus:border-sky-500 text-xs font-bold text-zinc-100 outline-none"
+                    />
+                  </div>
                 </div>
 
                 {/* 4. Gambar */}
