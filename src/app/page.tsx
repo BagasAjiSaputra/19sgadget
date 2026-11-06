@@ -154,14 +154,14 @@ export default function CatalogPage() {
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-zinc-900 text-emerald-400 text-[11px] font-black uppercase tracking-wider mb-2 border border-zinc-800">
             <CheckCircle className="w-3 h-3" />
-            <span>Garansi Resmi & Original</span>
+            {/* <span>Garansi Resmi & Original</span> */}
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-zinc-100 tracking-tight">
             19s Gadget Katalog
           </h1>
-          <p className="text-xs sm:text-sm font-medium text-zinc-400 mt-1">
+          {/* <p className="text-xs sm:text-sm font-medium text-zinc-400 mt-1">
             Koleksi handphone, tablet, dan laptop original pilihan
-          </p>
+          </p> */}
         </div>
 
         {/* Category Filter & Search Bar */}
@@ -285,7 +285,7 @@ export default function CatalogPage() {
             className="h-6 w-auto object-contain opacity-80"
           />
         </div>
-        <span>Katalog Gadget Original & Minimalis</span>
+        {/* <span>Katalog Gadget Original & Minimalis</span> */}
       </footer>
 
       {/* Product Detail Modal */}
